@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solve</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .problem-description {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #000000;
+        }
+
+        .problem-description h2 {
+            color: #000000;
+            margin-bottom: 10px;
+        }
+
+        .problem-description ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .problem-description li {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: #000000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+            background: #333333;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #000000;
+        }
+
+        .results-summary {
+            background: #000000;
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .results-summary h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters input,
+        .filters select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .filters input:focus,
+        .filters select:focus {
+            outline: none;
+            border-color: #000000;
+        }
+
+        .results-table {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background: #000000;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .result-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .expressions {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .expression-item {
+            padding: 5px;
+            margin: 3px 0;
+            background: white;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .expression-item:hover {
+            background: #e9ecef;
+        }
+
+        .show-all-btn {
+            background: #28a745;
+            font-size: 12px;
+            padding: 5px 10px;
+            margin-top: 5px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination button {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-weight: bold;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Card</h1>
+
+        <div class="problem-description">
+            <h2>Problem</h2>
+            <p>조건에 맞게 1부터 8까지의 자연수가 하나씩 적혀있는 8장의 카드와 +가 적혀있는 4장의 카드를 배열하여 덧셈식을 만든다.</p>
+            <ul>
+                <li>1. 모든 카드를 사용한다.</li>
+                <li>2. '+' 카드는 맨 앞 또는 끝에 배치하지 않는다.</li>
+                <li>3. '+' 카드는 연속적으로 배치하지 않는다.</li>
+            </ul>
+        </div>
+
+        <div class="controls">
+            <button id="calculateBtn" onclick="calcResults()">계산</button>
+            <button id="exportBtn" onclick="exportResults()" style="display: none;">Download CSV</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            Calculating..
+        </div>
+
+        <div id="results" style="display: none;">
+            <div class="results-summary">
+                <h2>Results</h2>
+                <div class="summary-stats">
+                    <div class="stat-card">
+                        <h3>c의 개수 (ans)</h3>
+                        <div class="value" id="uniqueCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>총 조합 수</h3>
+                        <div class="value" id="totalCombinations">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>최솟값</h3>
+                        <div class="value" id="minValue">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>최댓값</h3>
+                        <div class="value" id="maxValue">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <label>
+                    <strong>검색:</strong>
+                    <input type="number" id="searchValue" placeholder="결과값 검색" onkeyup="filter()">
+                </label>
+                <label>
+                    <strong>정렬:</strong>
+                    <select id="sortOrder" onchange="filter()">
+                        <option value="asc">결과값 오름차순</option>
+                        <option value="desc">결과값 내림차순</option>
+                        <option value="countDesc">조합 수 많은 순</option>
+                        <option value="countAsc">조합 수 적은 순</option>
+                    </select>
+                </label>
+                <label>
+                    <strong>페이지당 표시:</strong>
+                    <select id="itemsPerPage" onchange="filter()">
+                        <option value="10">10개</option>
+                        <option value="20" selected>20개</option>
+                        <option value="50">50개</option>
+                        <option value="100">100개</option>
+                        <option value="all">전체</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">c</th>
+                            <th style="width: 15%;">조합 개수</th>
+                            <th style="width: 75%;">e.g.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <script src="web-calculator.js"></script>
+</body>
+</html>
+
